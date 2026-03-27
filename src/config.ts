@@ -57,8 +57,11 @@ export const CONTAINER_MAX_OUTPUT_SIZE = parseInt(
 export const ONECLI_URL =
   process.env.ONECLI_URL || envConfig.ONECLI_URL || 'http://localhost:10254';
 // Agent backend: "claude" (default) or "copilot" (GitHub Copilot SDK)
-export const AGENT_BACKEND =
-  (process.env.AGENT_BACKEND || envConfig.AGENT_BACKEND || 'claude').toLowerCase();
+export const AGENT_BACKEND = (
+  process.env.AGENT_BACKEND ||
+  envConfig.AGENT_BACKEND ||
+  'claude'
+).toLowerCase();
 // Model to use with the Copilot SDK (default: claude-sonnet-4.5)
 export const COPILOT_MODEL =
   process.env.COPILOT_MODEL || envConfig.COPILOT_MODEL || '';
