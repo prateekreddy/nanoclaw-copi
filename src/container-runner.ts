@@ -15,6 +15,9 @@ import {
   IDLE_TIMEOUT,
   ONECLI_URL,
   TIMEZONE,
+  AGENT_BACKEND,
+  COPILOT_MODEL,
+  GITHUB_TOKEN,
 } from './config.js';
 import { resolveGroupFolderPath, resolveGroupIpcPath } from './group-folder.js';
 import { logger } from './logger.js';
@@ -232,6 +235,18 @@ async function buildContainerArgs(
 
   // Pass host timezone so container's local time matches the user's
   args.push('-e', `TZ=${TIMEZONE}`);
+
+  // Pass agent backend selection to the container
+  args.push('-e', `AGENT_BACKEND=${AGENT_BACKEND}`);
+  if (AGENT_BACKEND === 'copilot') {
+    if (COPILOT_MODEL) {
+      args.push('-e', `COPILOT_MODEL=${COPILOT_MODEL}`);
+    }
+    // Pass GitHub token for Copilot SDK authentication
+    if (GITHUB_TOKEN) {
+      args.push('-e', `GITHUB_TOKEN=${GITHUB_TOKEN}`);
+    }
+  }
 
   // OneCLI gateway handles credential injection — containers never see real secrets.
   // The gateway intercepts HTTPS traffic and injects API keys or OAuth tokens.

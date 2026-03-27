@@ -56,14 +56,14 @@ Skills we'd like to see contributed:
 
 ## Vision
 
-A personal Claude assistant accessible via messaging, with minimal custom code.
+A personal AI assistant accessible via messaging, with minimal custom code.
 
 **Core components:**
-- **Claude Agent SDK** as the core agent
+- **Claude Agent SDK** or **GitHub Copilot SDK** as the core agent (configurable via `AGENT_BACKEND`)
 - **Containers** for isolated agent execution (Linux VMs)
 - **Multi-channel messaging** (WhatsApp, Telegram, Discord, Slack, Gmail) — add exactly the channels you need
 - **Persistent memory** per conversation and globally
-- **Scheduled tasks** that run Claude and can message back
+- **Scheduled tasks** that run the agent and can message back
 - **Web access** for search and browsing
 - **Browser automation** via agent-browser
 
@@ -89,8 +89,9 @@ A personal Claude assistant accessible via messaging, with minimal custom code.
 - Agent runs in the group's folder, automatically inherits both CLAUDE.md files
 
 ### Session Management
-- Each group maintains a conversation session (via Claude Agent SDK)
+- Each group maintains a conversation session (via Claude Agent SDK or Copilot SDK)
 - Sessions auto-compact when context gets too long, preserving critical information
+- Backend is selected via `AGENT_BACKEND` env var: `claude` (default) or `copilot`
 
 ### Container Isolation
 - All agents run inside containers (lightweight Linux VMs)
@@ -138,7 +139,7 @@ A personal Claude assistant accessible via messaging, with minimal custom code.
 - Tools: `schedule_task`, `list_tasks`, `pause_task`, `resume_task`, `cancel_task`, `send_message`
 - Tasks stored in SQLite with run history
 - Scheduler loop checks for due tasks every minute
-- Tasks execute Claude Agent SDK in containerized group context
+- Tasks execute the configured agent SDK (Claude or Copilot) in containerized group context
 
 ### Web Access
 - Built-in WebSearch and WebFetch tools

@@ -10,6 +10,9 @@ const envConfig = readEnvFile([
   'ASSISTANT_HAS_OWN_NUMBER',
   'ONECLI_URL',
   'TZ',
+  'AGENT_BACKEND',
+  'COPILOT_MODEL',
+  'GITHUB_TOKEN',
 ]);
 
 export const ASSISTANT_NAME =
@@ -53,6 +56,15 @@ export const CONTAINER_MAX_OUTPUT_SIZE = parseInt(
 ); // 10MB default
 export const ONECLI_URL =
   process.env.ONECLI_URL || envConfig.ONECLI_URL || 'http://localhost:10254';
+// Agent backend: "claude" (default) or "copilot" (GitHub Copilot SDK)
+export const AGENT_BACKEND =
+  (process.env.AGENT_BACKEND || envConfig.AGENT_BACKEND || 'claude').toLowerCase();
+// Model to use with the Copilot SDK (default: claude-sonnet-4.5)
+export const COPILOT_MODEL =
+  process.env.COPILOT_MODEL || envConfig.COPILOT_MODEL || '';
+// GitHub token for Copilot SDK authentication (passed to containers)
+export const GITHUB_TOKEN =
+  process.env.GITHUB_TOKEN || envConfig.GITHUB_TOKEN || '';
 export const IPC_POLL_INTERVAL = 1000;
 export const IDLE_TIMEOUT = parseInt(process.env.IDLE_TIMEOUT || '1800000', 10); // 30min default — how long to keep container alive after last result
 export const MAX_CONCURRENT_CONTAINERS = Math.max(

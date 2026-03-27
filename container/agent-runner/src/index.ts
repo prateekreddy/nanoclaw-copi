@@ -19,6 +19,7 @@ import path from 'path';
 import { execFile } from 'child_process';
 import { query, HookCallback, PreCompactHookInput } from '@anthropic-ai/claude-agent-sdk';
 import { fileURLToPath } from 'url';
+import { runCopilotBackend } from './copilot-runner.js';
 
 interface ContainerInput {
   prompt: string;
@@ -576,6 +577,28 @@ async function main(): Promise<void> {
     prompt = `[SCHEDULED TASK]\n\nScript output:\n${JSON.stringify(scriptResult.data, null, 2)}\n\nInstructions:\n${containerInput.prompt}`;
   }
 
+  // Dispatch to the appropriate backend
+  const agentBackend = (process.env.AGENT_BACKEND || 'claude').toLowerCase();
+
+  if (agentBackend === 'copilot') {
+    log('Using Copilot SDK backend');
+    try {
+      await runCopilotBackend(containerInput, mcpServerPath, prompt);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      log(`Copilot agent error: ${errorMessage}`);
+      writeOutput({
+        status: 'error',
+        result: null,
+        newSessionId: sessionId,
+        error: errorMessage
+      });
+      process.exit(1);
+    }
+    return;
+  }
+
+  // Default: Claude Agent SDK backend
   // Query loop: run query → wait for IPC message → run new query → repeat
   let resumeAt: string | undefined;
   try {
