@@ -261,11 +261,28 @@ export async function runCopilotBackend(
   mcpServerPath: string,
   initialPrompt: string,
 ): Promise<void> {
-  // The Copilot SDK reads auth from GITHUB_TOKEN / GH_TOKEN / COPILOT_GITHUB_TOKEN env vars,
-  // or from the logged-in user's GitHub CLI credentials.
+  // GITHUB_TOKEN: a fine-grained Personal Access Token from https://github.com/settings/personal-access-tokens
+  // Required permissions: Account permissions → "GitHub Copilot" (read-only).
+  // The token must be set in .env as GITHUB_TOKEN=github_pat_...
+  // Passing it explicitly via `githubToken` makes the SDK inject it via --auth-token-env,
+  // which is the official mechanism and avoids any fallback to interactive login.
+  const githubToken = process.env.GITHUB_TOKEN;
+
+  if (!githubToken) {
+    log(
+      'WARNING: GITHUB_TOKEN is not set. Auth will fail. ' +
+        'Create a fine-grained PAT at https://github.com/settings/personal-access-tokens ' +
+        'with Account permissions → GitHub Copilot (read-only), then set GITHUB_TOKEN=github_pat_... in .env',
+    );
+  }
+
   const client = new CopilotClient({
     useStdio: true,
     logLevel: 'warning',
+    ...(githubToken && {
+      githubToken,
+      useLoggedInUser: false,
+    }),
   });
 
   try {
