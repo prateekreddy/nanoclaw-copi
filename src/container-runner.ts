@@ -225,20 +225,16 @@ function buildVolumeMounts(
 
   // Copilot backend: mount stored OAuth credentials from the host into the container.
   // The CLI uses ~/.copilot/ for credentials when no system keyring is available.
+  // Must be read-write — the CLI refreshes token cache on every startup.
   // Run `copilot login` once on the server to populate this directory.
   if (AGENT_BACKEND === 'copilot') {
     const copilotConfigDir = path.join(os.homedir(), '.copilot');
-    if (fs.existsSync(copilotConfigDir)) {
-      mounts.push({
-        hostPath: copilotConfigDir,
-        containerPath: '/home/node/.copilot',
-        readonly: true,
-      });
-    } else {
-      logger.warn(
-        'Copilot config dir ~/.copilot not found — run `copilot login` on the server to authenticate',
-      );
-    }
+    fs.mkdirSync(copilotConfigDir, { recursive: true });
+    mounts.push({
+      hostPath: copilotConfigDir,
+      containerPath: '/home/node/.copilot',
+      readonly: false,
+    });
   }
 
   return mounts;

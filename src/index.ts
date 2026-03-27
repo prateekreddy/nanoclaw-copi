@@ -4,6 +4,7 @@ import path from 'path';
 import { OneCLI } from '@onecli-sh/sdk';
 
 import {
+  AGENT_BACKEND,
   ASSISTANT_NAME,
   DEFAULT_TRIGGER,
   getTriggerPattern,
@@ -13,6 +14,7 @@ import {
   POLL_INTERVAL,
   TIMEZONE,
 } from './config.js';
+import { ensureCopilotAuth } from './copilot-auth.js';
 import './channels/index.js';
 import {
   getChannelFactory,
@@ -519,6 +521,12 @@ function ensureContainerSystemRunning(): void {
 }
 
 async function main(): Promise<void> {
+  // If using Copilot backend, ensure credentials exist before anything else starts.
+  // Runs device auth flow (shows code + URL, no browser needed on server).
+  if (AGENT_BACKEND === 'copilot') {
+    await ensureCopilotAuth();
+  }
+
   ensureContainerSystemRunning();
   initDatabase();
   logger.info('Database initialized');
