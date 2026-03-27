@@ -12,7 +12,6 @@ const envConfig = readEnvFile([
   'TZ',
   'AGENT_BACKEND',
   'COPILOT_MODEL',
-  'GITHUB_TOKEN',
 ]);
 
 export const ASSISTANT_NAME =
@@ -65,9 +64,6 @@ export const AGENT_BACKEND = (
 // Model to use with the Copilot SDK (default: claude-sonnet-4.5)
 export const COPILOT_MODEL =
   process.env.COPILOT_MODEL || envConfig.COPILOT_MODEL || '';
-// GitHub token for Copilot SDK authentication (passed to containers)
-export const GITHUB_TOKEN =
-  process.env.GITHUB_TOKEN || envConfig.GITHUB_TOKEN || '';
 export const IPC_POLL_INTERVAL = 1000;
 export const IDLE_TIMEOUT = parseInt(process.env.IDLE_TIMEOUT || '1800000', 10); // 30min default — how long to keep container alive after last result
 export const MAX_CONCURRENT_CONTAINERS = Math.max(

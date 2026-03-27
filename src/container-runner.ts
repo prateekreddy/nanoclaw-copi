@@ -4,6 +4,7 @@
  */
 import { ChildProcess, exec, spawn } from 'child_process';
 import fs from 'fs';
+import os from 'os';
 import path from 'path';
 
 import {
@@ -17,7 +18,6 @@ import {
   TIMEZONE,
   AGENT_BACKEND,
   COPILOT_MODEL,
-  GITHUB_TOKEN,
 } from './config.js';
 import { resolveGroupFolderPath, resolveGroupIpcPath } from './group-folder.js';
 import { logger } from './logger.js';
@@ -223,6 +223,24 @@ function buildVolumeMounts(
     mounts.push(...validatedMounts);
   }
 
+  // Copilot backend: mount stored OAuth credentials from the host into the container.
+  // The CLI uses ~/.copilot/ for credentials when no system keyring is available.
+  // Run `copilot login` once on the server to populate this directory.
+  if (AGENT_BACKEND === 'copilot') {
+    const copilotConfigDir = path.join(os.homedir(), '.copilot');
+    if (fs.existsSync(copilotConfigDir)) {
+      mounts.push({
+        hostPath: copilotConfigDir,
+        containerPath: '/home/node/.copilot',
+        readonly: true,
+      });
+    } else {
+      logger.warn(
+        'Copilot config dir ~/.copilot not found — run `copilot login` on the server to authenticate',
+      );
+    }
+  }
+
   return mounts;
 }
 
@@ -242,10 +260,8 @@ async function buildContainerArgs(
     if (COPILOT_MODEL) {
       args.push('-e', `COPILOT_MODEL=${COPILOT_MODEL}`);
     }
-    // Pass GitHub token for Copilot SDK authentication
-    if (GITHUB_TOKEN) {
-      args.push('-e', `GITHUB_TOKEN=${GITHUB_TOKEN}`);
-    }
+    // Credentials come from the mounted ~/.copilot/ directory (OAuth device flow).
+    // Run `copilot login` on the server once to populate it.
   }
 
   // OneCLI gateway handles credential injection — containers never see real secrets.

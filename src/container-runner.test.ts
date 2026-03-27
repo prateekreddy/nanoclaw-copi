@@ -18,7 +18,6 @@ vi.mock('./config.js', () => ({
   TIMEZONE: 'America/Los_Angeles',
   AGENT_BACKEND: 'claude',
   COPILOT_MODEL: '',
-  GITHUB_TOKEN: '',
 }));
 
 // Mock logger
