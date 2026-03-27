@@ -125,6 +125,17 @@ function buildSessionConfig(
     systemContent = systemContent ? `${systemContent}\n\n${groupContent}` : groupContent;
   }
 
+  // Suppress Copilot CLI's default "draft options" behavior.
+  // Without this, the CLI presents numbered draft choices instead of responding directly.
+  const behaviorInstructions = `
+## Response Rules
+
+- Respond directly and immediately. NEVER present numbered options or drafts for the user to choose from.
+- Your text response IS the message sent to the user — do not ask them to pick a version.
+- Use mcp__nanoclaw__send_message to send messages mid-task. Your final output is also sent automatically.
+- Do not present "Options to send" lists. Just respond.
+`.trim();
+
   const mcpConfig: MCPLocalServerConfig = {
     command: 'node',
     args: [mcpServerPath],
@@ -137,13 +148,14 @@ function buildSessionConfig(
   };
 
   const model = process.env.COPILOT_MODEL || 'claude-sonnet-4.5';
+  const finalSystemContent = systemContent
+    ? `${systemContent}\n\n${behaviorInstructions}`
+    : behaviorInstructions;
 
   return {
     model,
     workingDirectory: '/workspace/group',
-    systemMessage: systemContent
-      ? { content: systemContent }
-      : undefined,
+    systemMessage: { content: finalSystemContent },
     mcpServers: {
       nanoclaw: mcpConfig,
     },
